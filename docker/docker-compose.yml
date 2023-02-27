@@ -1,0 +1,17 @@
+version: "3.8"
+volumes:
+  mydata:
+services:
+  SqlServer:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: SqlServer
+    hostname: SqlServer
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "12345678PFE!"
+    volumes: 
+       - mydata:/var/opt/mssql
+    ports:
+      - "1433:1433"
+    expose:
+      - "1-65535"

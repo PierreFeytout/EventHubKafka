@@ -1,0 +1,26 @@
+version: "3.8"
+volumes:
+  mydata:
+    driver: azure_file
+    driver_opts:
+      share_name: database
+      storage_account_name: stopfedev
+services:
+  test-sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    deploy:
+      resources:
+        reservations:
+          cpus: '4'
+          memory: 4G
+    container_name: test-sqlserver
+    hostname: test-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "12345678PFE!"
+    volumes: 
+       - mydata:/var/opt/mssql
+    ports:
+      - "1433:1433"
+    expose:
+      - "1433"
