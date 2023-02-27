@@ -7,6 +7,7 @@ using Microsoft.Azure.WebJobs.Extensions.Kafka;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace EventHubContainerFunction
 {
@@ -20,27 +21,7 @@ namespace EventHubContainerFunction
         }
 
         [FunctionName("SendMessageToPipeline")]
-        public IActionResult Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
-#if DEBUG_KAFKA
-            [Kafka(
-                brokerList: "%Kafka:BrokerList%",
-                topic: "%Kafka:TopicName%",
-                Username = "%Kafka:Username%",
-                Password = "%Kafka:Password%",
-                Protocol = BrokerProtocol.Plaintext,
-                AuthenticationMode = BrokerAuthenticationMode.NotSet)]
-#else
-            [Kafka(
-                brokerList: "%EventHub:BrokerList%",
-                topic: "%EventHub:TopicName%",
-                Username = "%EventHub:Username%",
-                Password = "%EventHub:Password%",
-                Protocol = BrokerProtocol.SaslSsl,
-                AuthenticationMode = BrokerAuthenticationMode.Plain)]
-#endif
-                out KafkaEventData<string> eventData,
-                ILogger log)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
@@ -54,15 +35,10 @@ namespace EventHubContainerFunction
                 ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
                 : $"Hello, {name}. This HTTP triggered function executed successfully.";
 
-            eventData = new KafkaEventData<string>(requestBody);
-            eventData.Headers.Add("test", System.Text.Encoding.UTF8.GetBytes("dotnet"));
-
-            //_kafkaProducer.ProduceAsync("topic", new Message<Null, string>
-            //{
-            //    Value = "toto"
-            //});
-
-            //_kafkaProducer.Flush();
+            var result =  await _kafkaProducer.ProduceAsync("topic", new Message<Null, string>
+            {
+                Value = requestBody
+            });
 
             return new OkObjectResult(responseMessage);
         }
