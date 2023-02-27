@@ -22,7 +22,6 @@ services:
           - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://127.0.0.1:9092
           - KAFKA_CFG_BROKER_ID=1
           - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@127.0.0.1:9093
-          - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
           - ALLOW_PLAINTEXT_LISTENER=yes
   #kafka:
   #  image: 'bitnami/kafka:latest'
